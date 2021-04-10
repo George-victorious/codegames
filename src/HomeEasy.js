@@ -8,9 +8,8 @@ import SettingsBlock from './Settings'
 import back from './back.svg'
 import io from 'socket.io-client';
 import { Link } from 'react-router-dom';
-const socket = io('http://192.168.0.103:5000', {
-  transports: ['websocket', 'polling']
-});
+
+let socket;
 const Home = () => {
   const username = useState(localStorage.getItem('username'))
   const [room, setRoom] = useState({})
@@ -48,6 +47,9 @@ const Home = () => {
   }
 
   useEffect(() => {
+    socket = io('https://codenamesserver.herokuapp.com', {
+      transports: ['websocket']
+    })
     socket.on('connect', () => {
       console.log('connect')
       socket.emit('username',username)
@@ -96,7 +98,7 @@ const Home = () => {
       anim1.play();
     })
 
-    return () => {socket.emit('leaveRoom',null)}
+    return () => socket.disconnect();
   // eslint-disable-next-line
   }, [])
 
@@ -183,7 +185,7 @@ const Home = () => {
         pauseGame={pauseGame}
         startGame={startGame}
         />
-        <Link to={'/'}><img src={back} style={{color: 'black', fontSize: '100px', position: 'absolute', left: '0', bottom: '0', cursor: 'pointer' }} alt='' /></Link>
+        <Link to={'/'}><Img src={back} alt='' title='Назад' /></Link>
     </Full>
   );
 };
@@ -257,4 +259,18 @@ const Line = styled.hr`
   border: 0;
   height: 1px;
   background-image: linear-gradient(to right, rgba(0, 0, 0, 0), rgba(255, 255, 255, 0.75), rgba(0, 0, 0, 0));
+`
+
+const Img = styled.img`
+  color: black;
+  width: 50px;
+  position: absolute;
+  bottom: 0;
+  left: -25px;
+  cursor: pointer;
+  transition: 1s;
+  : hover {
+    width: 100px;
+    left: 0;
+  }
 `

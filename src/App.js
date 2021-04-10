@@ -9,21 +9,14 @@ import {
   Route,
 } from "react-router-dom";
 
-
 function App() {
   return (
     <AppDiv>
       <Router>
           <Switch>
-            <Route exact path="/">
-              <Menu />
-            </Route>
-            <Route path="/codenames">
-              <HomeEasy />
-            </Route>
-            <Route path="/add">
-              <AddWords />
-            </Route>
+            <Route exact path="/" component={Menu} />
+            <Route path="/codenames" component={HomeEasy} />
+            <Route path="/add" component={AddWords} />
           </Switch>
       </Router>
     </AppDiv>
@@ -37,5 +30,4 @@ const AppDiv = styled.div`
   height: 100vh;
   max-width: 100%;
   user-select: none;
-  cursor: url('curauto.png') , auto!important;
 `

@@ -48,7 +48,7 @@ export default function AddWords({socket}) {
         </Flex>
         <CustomButton onClick={check} >Отправить</CustomButton>
       </Container>
-      <Link to={'/'}><img src={back} style={{color: 'black', fontSize: '100px', position: 'absolute', left: '0', bottom: '0', cursor: 'pointer' }} alt='' /></Link>
+      <Link to={'/'}><Img src={back} alt='' title="Назад" /></Link>
     </Full>
   )
 }
@@ -118,4 +118,18 @@ const Errer = styled.div`
   font-size: 20pt;
   font-weight: bold;
   text-align: center;
+`
+
+const Img = styled.img`
+  color: black;
+  width: 50px;
+  position: absolute;
+  bottom: 0;
+  left: -25px;
+  cursor: pointer;
+  transition: 1s;
+  : hover {
+    width: 100px;
+    left: 0;
+  }
 `
