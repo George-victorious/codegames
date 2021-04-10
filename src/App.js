@@ -1,25 +1,41 @@
-import logo from './logo.svg';
-import './App.css';
+import React from 'react'
+import styled from 'styled-components';
+import Menu from './Menu'
+import HomeEasy from './HomeEasy'
+import AddWords from './AddWords'
+import {
+  BrowserRouter as Router,
+  Switch,
+  Route,
+} from "react-router-dom";
+
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <AppDiv>
+      <Router>
+          <Switch>
+            <Route exact path="/">
+              <Menu />
+            </Route>
+            <Route path="/codenames">
+              <HomeEasy />
+            </Route>
+            <Route path="/add">
+              <AddWords />
+            </Route>
+          </Switch>
+      </Router>
+    </AppDiv>
   );
 }
 
 export default App;
+
+const AppDiv = styled.div`
+  width: 100%;
+  height: 100vh;
+  max-width: 100%;
+  user-select: none;
+  cursor: url('curauto.png') , auto!important;
+`
