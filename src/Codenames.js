@@ -49,7 +49,7 @@ const Home = () => {
   }
 
   useEffect(() => {
-    socket = io('http://localhost:5000', {
+    socket = io('https://codenamesserver.herokuapp.com/', {
       transports: ['websocket']
     })
     socket.on('connect', () => {

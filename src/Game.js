@@ -12,17 +12,6 @@ export default function Game({handleClickButton, wordChosen, size, teamWordsClic
     }
   }
 
-  // const getColor = (team, isDark) => {
-  //   const darkness = isDark ? '30' : '0'
-  //   switch (team) {
-  //     case 'red': return [`cmyk(0%, 61%, 69%, ${darkness}%)`,'#8a1000']
-  //     case 'blue': return [`cmyk(69%, 27%, 0%, ${darkness}%)`,'#00548a']
-  //     case 'black': return ['#131418','#aaa']
-  //     case 'openedWhite': return ['#e3c4af','#737065']
-  //     default: return [`cmyk(0%, 14%, 23%, ${darkness}%)`,'#737065']
-  //   }
-  // }
-
   return(
     <GameDivWrap>
       <GameDiv>
