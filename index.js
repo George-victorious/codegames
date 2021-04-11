@@ -100,7 +100,6 @@ app.get('/getPort', async (req, res) => {
 })
 
 app.post('/addWord', async (req, res) => {
-  console.log(req.body)
   const currentScema = mongoose.model('words',wordShema);
   const Wordbd = await currentScema.findOne({
       ru: req.body.word.ru
@@ -252,7 +251,6 @@ const createWordList = async () => {
 const newWords = async (client) => {
   if(!room.gameStarted && client.id === room.admin){
     await createWordList();
-    console.log(arrayToMaster.length)
     room = {...room,
       redWordsLeft: 2*room.size,
       blueWordsLeft: 2*room.size,
@@ -268,7 +266,6 @@ const newWords = async (client) => {
       MasterTime: true,
       MasterTurn: true
     }
-    console.log('newWords send')
     Object.keys(users).map(
       user => io.to(user).emit('words', (users[user])['isMaster'] ? arrayToMaster : arrayToPlay)
     );
@@ -294,7 +291,6 @@ const changeSettings = (client,prop, value) => {
   if(!room.gameStarted && client.id === room.admin){
     if(prop === 'timeToAnswer' || prop === 'timeToThink' || prop === 'timeByCorrectAnswer'){
       if(value > 4 && value < 99){
-        console.log('1')
         room[prop] = value;
         io.emit('room', room);
       }
@@ -338,7 +334,6 @@ const openCard = (buttonIndex) => {
       }
       arrayToPlay = arrayToMaster;
     }
-    console.log('click send')
     Object.keys(users).map(
       user => io.to(user).emit('words', (users[user])['isMaster'] ? arrayToMaster : arrayToPlay)
     )
@@ -363,18 +358,16 @@ const chosenWordCorrect = () => {
     room[room.teamTurn].length === 1){
     for (let i = 0; i < room.teamWordsClicked.length - 1; i++) {
       if(room.teamWordsClicked[i].id !== room.teamWordsClicked[i + 1].id) {
-        console.log(1)
         return false;
       }
     }
   } else {
-    console.log(2)
     return false;
   }
   return true
 }
 
-const clickButton = (client, buttonIndex, time) => {
+const clickButton = (client, buttonIndex) => {
   if(!(users[client.id])['isMaster']) {
     if(room.teamTurn === (users[client.id])['team'] && !arrayToPlay[buttonIndex].isClicked && room.gameStarted && !globaleTime.MasterTurn) {
       if(room[room.teamTurn].length > 1) {
@@ -384,10 +377,7 @@ const clickButton = (client, buttonIndex, time) => {
       io.emit('wordChosen', wordChosen);
       if(wordChosen !== null){
         clearTimeout(timeoutID);
-        const date = new Date();
-        const localTimeOffset = date.getTimezoneOffset() * 60000;
-        const offset = date.getTime() - localTimeOffset - time;
-        timeoutID = setTimeout(()=>openCard(buttonIndex), 1000 + offset);
+        timeoutID = setTimeout(()=>openCard(buttonIndex), 1000);
         } else {
           clearTimeout(timeoutID)
           io.emit('room', room);
@@ -422,52 +412,42 @@ const disconnect = (client) => {
 
 io.on('connection', client => {
   client.on('username', username => {
-    console.log('username');
     setUsername(client,username);
   })
 
   client.on('becomePlayer', newTeam => {
-    console.log('becomePlayer');
     becomePlayer(client,newTeam);
   })
 
   client.on('becomeMaster', newTeam => {
-    console.log('becomeMaster');
     becomeMaster(client,newTeam);
   })
 
   client.on('newWords', () => {
-    console.log('newWords');
     newWords(client);
   })
 
   client.on('startGame', () => {
-    console.log('startGame');
     startGame(client);
   })
 
   client.on('pauseGame', () => {
-    console.log('pauseGame');
     pauseGame(client);
   })
 
   client.on('send', message => {
-    console.log('send');
     sendMessage(client,message);
   })
 
   client.on('settings', (prop, value) => {
-    console.log('settings');
     changeSettings(client, prop, value);
   })
 
-  client.on('clickButton', (buttonIndex, time) => {
-    console.log('clickButton');
-    clickButton(client, buttonIndex, time);
+  client.on('clickButton', (buttonIndex) => {
+    clickButton(client, buttonIndex);
   })
 
   client.on('disconnect', () => {
-    console.log('disconnect');
     room.gameStarted && gameOver();
     disconnect(client);
   })
