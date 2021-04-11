@@ -3,7 +3,7 @@ import styled from 'styled-components'
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 import back from './back.svg'
-export default function AddWords({socket}) {
+export default function AddWords() {
   const [word, setword] = useState({ru:'', en:'',custom: false})
   const [incorrectWord, setIncorrectWord] = useState('')
 
@@ -32,23 +32,43 @@ export default function AddWords({socket}) {
 
   return (
     <Full>
-      <Errer>{incorrectWord}</Errer>
+      <Errer>
+        {incorrectWord}
+      </Errer>
       <Container>
         <div>
           <CustomLabel>Слово</CustomLabel>
-          <CustomInput value={word.ru} onChange={e=>setword({...word,ru:e.target.value})} placeholder="Русское слово" />
+          <CustomInput
+            value={word.ru}
+            onChange={e=>setword({...word,ru:e.target.value})}
+            placeholder="Русское слово"
+          />
         </div>
         <div>
         <CustomLabel>Перевод</CustomLabel>
-          <CustomInput value={word.en} onChange={e=>setword({...word,en:e.target.value})} placeholder="Английское слово" />
+          <CustomInput
+            value={word.en}
+            onChange={e=>setword({...word,en:e.target.value})}
+            placeholder="Английское слово"
+          />
         </div>
         <Flex>
-        <CustomLabel margin={'10px'}>Необычное слово?</CustomLabel>
-          <CustomInput type='checkbox' value={word.custom} onChange={e=>setword({...word,custom:e.target.value})} />
+        <CustomLabel margin={'10px'}>
+          Необычное слово?
+        </CustomLabel>
+          <CustomInput
+            type='checkbox'
+            value={word.custom}
+            onChange={e=>setword({...word,custom:e.target.value})}
+          />
         </Flex>
-        <CustomButton onClick={check} >Отправить</CustomButton>
+        <CustomButton onClick={check} >
+          Отправить
+        </CustomButton>
       </Container>
-      <Link to={'/'}><Img src={back} alt='' title="Назад" /></Link>
+      <Link to={'/'}>
+        <Img src={back} alt='' title="Назад" />
+      </Link>
     </Full>
   )
 }

@@ -1,7 +1,7 @@
 import React from 'react'
 import styled from 'styled-components';
 import Menu from './Menu'
-import HomeEasy from './HomeEasy'
+import Codenames from './Codenames'
 import AddWords from './AddWords'
 import {
   BrowserRouter as Router,
@@ -15,7 +15,7 @@ function App() {
       <Router>
           <Switch>
             <Route exact path="/" component={Menu} />
-            <Route path="/codenames" component={HomeEasy} />
+            <Route path="/codenames" component={Codenames} />
             <Route path="/add" component={AddWords} />
           </Switch>
       </Router>

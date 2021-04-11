@@ -5,13 +5,30 @@ export default function Players ({becomePlayer, color, roomColor, gameStarted}) 
   return (
     <PlayerList colorw={color} >
       { color === 'white' &&
-        <PlayerLink onClick={()=>becomePlayer(color)}>Зрители:</PlayerLink>
+        <PlayerLink
+          onClick={()=>becomePlayer(color)}
+        >
+          Зрители:
+        </PlayerLink>
       }
       {
-        roomColor && roomColor.map(player => <PlayerRow key={player}><RoundColor color={player.isAdmin ? '000000' : player.personalColors} /><Player id={player.id}>{player.name}</Player></PlayerRow>)
+        roomColor && roomColor.map(player =>
+          <PlayerRow key={player}>
+            <RoundColor
+              id={'RoundColor'+player.id}
+              colow={player.isAdmin
+                ? '000000'
+                : player.personalColors}
+            />
+            <Player id={player.id}>
+              {player.name}
+            </Player>
+          </PlayerRow>)
       }
       { !gameStarted && color !== 'white' &&
-          <PlayerLink onClick={()=>becomePlayer(color)}>Присоедениться</PlayerLink>
+          <PlayerLink onClick={()=>becomePlayer(color)}>
+            Присоедениться
+          </PlayerLink>
       }
     </PlayerList>
   )
@@ -19,25 +36,14 @@ export default function Players ({becomePlayer, color, roomColor, gameStarted}) 
 
 
 const PlayerList = styled.div`
-  ${props => props.colorw === 'white' ? 'display: flex;' : 'height: 185px;'}
-  overflow-y: auto;
+  ${props => props.colorw === 'white'
+    ? 'display: flex;'
+    : 'height: 185px;'}
   overflow-x: hidden;
+  overflow-y: auto;
   ::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
-   }
-   ::-webkit-scrollbar-thumb {
-    background: linear-gradient(0deg, #114b80 23%,#80201d 68%);
-    border-radius: 15px;
-   }
-   ::-webkit-scrollbar-thumb:hover{
-    background: linear-gradient(13deg, #80201D 14%,#114b80 64%);
-   }
-   ::-webkit-scrollbar-track{
-    background: #ffffff;
-    border-radius: 15px;
-    box-shadow: inset 7px 10px 15px #f0f0f0;
-   }
+    display: none;
+  }
 `
 
 const PlayerRow = styled.div`
@@ -48,7 +54,7 @@ const PlayerRow = styled.div`
 `
 
 const RoundColor = styled.div`
-  background: #${props=>props.color};
+  background: #${props=>props.colow};
   width: 10px;
   height: 10px;
   border-radius: 50%;

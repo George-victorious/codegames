@@ -3,27 +3,57 @@ import styled from 'styled-components'
 
 export default function Game({handleClickButton, wordChosen, size, teamWordsClicked, words}) {
 
-  const getColor = (team) => {
+  const getColor = (team, isDark) => {
     switch (team) {
-      case 'red': return ['#ff6450','#8a1000']
-      case 'blue': return ['#50bbff','#00548a']
+      case 'red': return isDark ? ['#ff6450','#8a1000'] : ['#b34637','#8a1000']
+      case 'blue': return isDark ? ['#50bbff','#00548a'] : ['#3781b3','#00548a']
       case 'black': return ['#131418','#aaa']
-      case 'openedWhite': return ['#e3c4af','#737065']
-      default: return ['#c9af7b','#737065']
+      default: return isDark ? ['#e3c4af','#737065'] : ['#b39a89','#737065']
     }
   }
+
+  // const getColor = (team, isDark) => {
+  //   const darkness = isDark ? '30' : '0'
+  //   switch (team) {
+  //     case 'red': return [`cmyk(0%, 61%, 69%, ${darkness}%)`,'#8a1000']
+  //     case 'blue': return [`cmyk(69%, 27%, 0%, ${darkness}%)`,'#00548a']
+  //     case 'black': return ['#131418','#aaa']
+  //     case 'openedWhite': return ['#e3c4af','#737065']
+  //     default: return [`cmyk(0%, 14%, 23%, ${darkness}%)`,'#737065']
+  //   }
+  // }
 
   return(
     <GameDivWrap>
       <GameDiv>
         {
-          words.map((word, i) => <GameButton
-            id={'GameButton'+i}
-            key={'GameButton_'+i}
-            bg={getColor(word.team)}
-            gapcnt={size}
-            onClick={()=>handleClickButton(i)}
-            ><Word>{word.ru}</Word>{wordChosen === i && <Progress gameTimer={wordChosen === null ? 0 : 1} />}<RoundColors>{teamWordsClicked.map(w => w.id === i && <RoundColor color={w.color}/>)}</RoundColors></GameButton>)
+          words.map((word, i) =>
+            <GameButton
+              id={'GameButton'+i}
+              key={'GameButton_'+i}
+              bg={getColor(word.team, !word.isClicked)}
+              gapcnt={size}
+              onClick={()=>handleClickButton(i)}
+            >
+              <Word>
+                {word.ru}
+              </Word>
+              {
+                wordChosen === i &&
+                  <Progress
+                    gameTimer={wordChosen === null ? 0 : 1}
+                  />
+              }
+              <RoundColors>
+                {
+                  teamWordsClicked.map(w =>
+                    w.id === i &&
+                      <RoundColor color={w.color}/>
+                  )
+                }
+              </RoundColors>
+            </GameButton>
+          )
         }
       </GameDiv>
     </GameDivWrap>
@@ -49,13 +79,13 @@ const GameDiv = styled.div`
 
 const GameButton = styled.div`
   width: calc(${props => 100/props.gapcnt}% - ${props => 10*(props.gapcnt-1)/props.gapcnt}px);
-  height: 10%;
+  height: calc(${props => 100/props.gapcnt}% - ${props => 10*(props.gapcnt-1)/props.gapcnt}px);
   border-radius: 5px;
-  background: ${props => props.bg[0]};
+  background-color: ${props => props.bg[0]};
   color: ${props => props.bg[1]};
   cursor: pointer;
   position: relative;
-  z-index: 1;
+  z-index: 2;
   overflow: hidden;
 `
 
@@ -78,12 +108,12 @@ const Word = styled.div`
 const Progress = styled.div`
   position: absolute;
   bottom: 0;
-  height: 5px;
+  height: 100%;
   width: 0%;
   opacity: 40%;
   background: black;
-  z-index: 2;
-  animation: 2s linear;
+  z-index: 3;
+  animation: 1s linear;
   ${props=>props.gameTimer === 1 && 'animation-name: bar;'}
   @keyframes bar {
     from {

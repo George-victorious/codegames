@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import styled from 'styled-components'
 
-export default function TimeAndInputBlock({socket, globaleTime, idMaster, myId}) {
+export default function FullInput({socket, masterTurn, isMaster}) {
   const [message, setMessage] = useState('')
 
   const handleSendMessage = () => {
@@ -10,31 +10,25 @@ export default function TimeAndInputBlock({socket, globaleTime, idMaster, myId})
     setMessage('')
     }
   }
-
   return (
-    <>
-      <InputBlock>
-      { globaleTime.MasterTurn && idMaster === myId &&
-        <>
-          <InputInput value={message} onChange={e=>setMessage(e.target.value)} />
-          <InputButton onClick={handleSendMessage}>Добавить</InputButton>
-        </>
+    <InputBlock>
+      {
+        masterTurn && isMaster &&
+          <>
+            <InputInput
+              value={message}
+              onChange={e=>setMessage(e.target.value)}
+            />
+            <InputButton
+              onClick={handleSendMessage}
+            >
+              Добавить
+            </InputButton>
+          </>
       }
-        </InputBlock>
-      <Timer>{
-          globaleTime.MasterTurn
-          ? globaleTime.timeToThinkLeft ? globaleTime.timeToThinkLeft : globaleTime.timeToAnswerLeft
-          : globaleTime.timeToAnswerLeft
-      }</Timer>
-    </>
+    </InputBlock>
   )
 }
-
-const Timer = styled.div`
-  height: 50px;
-  width: 100%;
-  color: ${props=>props.colow || 'white'};
-`
 
 const InputBlock = styled.div`
   display: flex;
@@ -62,5 +56,5 @@ const InputButton = styled.button`
   border: 1px solid #d32f2f;
   background-color: #424242;
   width: 100%;
+  cursor: pointer;
 `
-

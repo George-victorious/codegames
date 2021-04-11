@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import styled from 'styled-components';
-import TimeAndInputBlock from './TimeAndInputBlock'
+import TimeBlock from './TimeBlock'
 import Master from './Master'
 import Players from './Players'
 import Game from './Game'
@@ -8,6 +8,7 @@ import SettingsBlock from './Settings'
 import back from './back.svg'
 import io from 'socket.io-client';
 import { Link } from 'react-router-dom';
+import FullInput from './FullInput';
 
 let socket;
 const Home = () => {
@@ -43,16 +44,17 @@ const Home = () => {
   }
 
   const handleClickButton = index => {
-    socket.emit('clickButton', index)
+    const date = new Date()
+    socket.emit('clickButton', index, date.getTime() - date.getTimezoneOffset() * 60000)
   }
 
   useEffect(() => {
-    socket = io('https://codenamesserver.herokuapp.com', {
+    socket = io('http://localhost:5000', {
       transports: ['websocket']
     })
     socket.on('connect', () => {
       console.log('connect')
-      socket.emit('username',username)
+      socket.emit('username',username[0])
     })
 
     socket.on('getId', id => {
@@ -82,16 +84,19 @@ const Home = () => {
 
     socket.on('buttonClicked', (buttonIndex, id) => {
       const anim = document.getElementById('GameButton'+buttonIndex).animate([
-        {transform: 'translateY(-3px)'},
-        {boxShadow: '0 10px 20px rgba(0, 0, 0, 0.2)'}
+        {transform: 'scale(1)'},
+        {transform: 'scale(1.05)'},
+        {transform: 'scale(1)'}
       ], {
         duration: 300,
+        easing: 'linear'
       })
       anim.play();
 
-      const anim1 = document.getElementById(id).animate([
-        {transform: 'translateY(-3px)'},
-        {boxShadow: '0 10px 20px rgba(0, 0, 0, 0.2)'}
+      const anim1 = document.getElementById('RoundColor'+id).animate([
+        {transform: 'scale(1)'},
+        {transform: 'scale(2)'},
+        {transform: 'scale(1)'}
       ], {
         duration: 300,
       })
@@ -112,34 +117,39 @@ const Home = () => {
           />
       </WhiteTeam>
       <RedTeam>
-        <Master
-          becomeMaster={becomeMaster}
-          color='red'
-          player={room.redMaster}
-          />
-        <Line />
-        <Players
-          becomePlayer={becomePlayer}
-          color='red' roomColor={room.red}
-          gameStarted={room.gameStarted}
-          />
-        <PlayerWords>
-          {room.gameStarted &&
-            room.redWords.map((word,i)=><div key={word+i}>{word}</div>)
+        <Team>
+          <Master
+            becomeMaster={becomeMaster}
+            color='red'
+            player={room.redMaster}
+            />
+          <Line />
+          <Players
+            becomePlayer={becomePlayer}
+            color='red'
+            roomColor={room.red}
+            gameStarted={room.gameStarted}
+            />
+          <PlayerWords>
+            {room.gameStarted &&
+              room.redWords.map((word,i)=><div key={word+i}>{word}</div>)
+            }
+          </PlayerWords>
+          {
+            room.gameStarted && room.teamTurn === 'red' &&
+              <>
+                <FullInput
+                  socket={socket}
+                  masterTurn={globaleTime.MasterTurn}
+                  isMaster={room.redMaster[0].id === myId}
+                />
+                <TimeBlock gT={globaleTime} isStarted={room.gameStarted} />
+              </>
           }
-        </PlayerWords>
-        {
-          room.gameStarted && room.teamTurn === 'red' &&
-            <TimeAndInputBlock
-              socket={socket}
-              globaleTime={globaleTime}
-              idMaster={room.redMaster[0].id}
-              myId={myId}
-              />
-        }
-        <BidValue colorw={'#80201d'}>
-          {room.redWordsLeft}
-        </BidValue>
+          <BidValue colorw={'#80201d'}>
+            {room.redWordsLeft}
+          </BidValue>
+        </Team>
       </RedTeam>
       <Game
         handleClickButton={handleClickButton}
@@ -149,31 +159,36 @@ const Home = () => {
         words={words}
         />
       <BlueTeam>
-        <Master
-          becomeMaster={becomeMaster}
-          color='blue'
-          player={room.blueMaster}
-          />
-        <Line />
-        <Players
-          becomePlayer={becomePlayer}
-          color='blue'
-          roomColor={room.blue}
-          />
-        <PlayerWords>
+        <Team>
+          <Master
+            becomeMaster={becomeMaster}
+            color='blue'
+            player={room.blueMaster}
+            />
+          <Line />
+          <Players
+            becomePlayer={becomePlayer}
+            color='blue'
+            roomColor={room.blue}
+            gameStarted={room.gameStarted}
+            />
+          <PlayerWords>
+            {
+              room.blueWords && room.blueWords.map((word,i)=><div key={word+i}>{word}</div>)
+            }
+          </PlayerWords>
           {
-            room.gameStarted &&
-              room.blueWords.map((word,i)=><div key={word+i}>{word}</div>)
+            room.gameStarted && room.teamTurn === 'blue' &&
+            <>
+              <FullInput
+                socket={socket}
+                masterTurn={globaleTime.MasterTurn}
+                isMaster={room.blueMaster[0].id === myId}
+              />
+              <TimeBlock gT={globaleTime} isStarted={room.gameStarted} />
+            </>
           }
-        </PlayerWords>
-        {
-          room.gameStarted && room.teamTurn === 'blue' &&
-            <TimeAndInputBlock
-              socket={socket}
-              globaleTime={globaleTime}
-              idMaster={room.redMaster[0].id}
-              myId={myId}
-              />}
+          </Team>
         <BidValue colorw={'#114b80'}>
           {room.blueWordsLeft}
         </BidValue>
@@ -219,7 +234,6 @@ const BidValue = styled.div`
   position: absolute;
   color: ${props=>props.colorw};
   position: absolute;
-  font-stretch: ultra-condensed;
   font-size: 100px;
   bottom: 40%;
   text-align: center;
@@ -233,22 +247,34 @@ const RedTeam = styled.div`
   position: relative;
   padding: 10px;
   position: relative;
+  z-index: 1;
 `
-  
+
+const Team = styled.div`
+  position: absolute;
+  width: calc(100% - 20px);
+  height: 500px;
+  z-index: 1;
+`
+
 const BlueTeam = styled.div`
   width: 140px;
   height: 500px;
   background: #01579B;
   position: relative;
   padding: 10px;
+  z-index: 1;
 `
 
 const PlayerWords = styled.div`
   margin: 10px;
   width: calc(100% - 20px);
   height: 185px;
+  overflow-x: hidden;
   overflow-y: auto;
-  display: flex;
+  ::-webkit-scrollbar {
+    display: none;
+  }
   color: white;
   flex-direction: column;
   justify-content: flex-end;

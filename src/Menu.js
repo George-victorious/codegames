@@ -17,21 +17,49 @@ export default function Menu() {
     setUsername(inp)
   }
 
+  const Main = () => {
+    return (
+      <>
+        <Link to='/codenames'>
+          <CustomButton>
+            Играть
+          </CustomButton>
+        </Link>
+        <Link to='/add'>
+          <CustomButton>
+            Добавить слово
+          </CustomButton>
+        </Link>
+        <CustomButton
+          onClick={changeName}
+        >
+          Изменить никнейм
+        </CustomButton>
+      </>
+    )
+  }
+
   return (
     <Full>
       <Container>
         {username
           ?
-            <>
-              <Link to='/codenames'><CustomButton>Играть</CustomButton></Link>
-              <Link to='/add'><CustomButton>Добавить слово</CustomButton></Link>
-              <CustomButton onClick={changeName} >Изменить никнейм</CustomButton>
-            </>
+            <Main />
           :
             <>
-              <CustomLabel>Как вас будут видеть другие пользователи</CustomLabel>
-              <CustomInput value={inp} onChange={e=>setinp(e.target.value)} placeholder="Никнейм" />
-              <CustomButton onClick={aceptName} >Подтвердить</CustomButton>
+              <CustomLabel>
+                Как вас будут видеть другие игроки
+              </CustomLabel>
+              <CustomInput
+                value={inp}
+                onChange={e=>setinp(e.target.value)}
+                placeholder="Никнейм"
+              />
+              <CustomButton
+                onClick={aceptName}
+              >
+                Подтвердить
+              </CustomButton>
             </>
           }
       </Container>
