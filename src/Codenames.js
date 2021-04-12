@@ -146,10 +146,10 @@ const Home = () => {
                 <TimeBlock gT={globaleTime} isStarted={room.gameStarted} />
               </>
           }
+        </Team>
           <BidValue colorw={'#80201d'}>
             {room.redWordsLeft}
           </BidValue>
-        </Team>
       </RedTeam>
       <Game
         handleClickButton={handleClickButton}
@@ -246,7 +246,6 @@ const RedTeam = styled.div`
   background: #b71c1c;
   position: relative;
   padding: 10px;
-  position: relative;
   z-index: 1;
 `
 
