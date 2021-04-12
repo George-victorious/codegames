@@ -54,7 +54,6 @@ let wordChosen = null;
 let globaleTime = {timeToThinkLeft: 60, timeToAnswerLeft: 60, MasterTime: true, MasterTurn: true}
 let arrayToPlay = [];
 let arrayToMaster = [];
-let time;
 
 const wordShema = new Schema({
   ru:{
@@ -301,23 +300,27 @@ const changeSettings = (client,prop, value) => {
   }
 }
 
-const openCard = (buttonIndex, date) => {
-  const newdste = new Date().getTime()
-  console.log(newdste - date)
+const changeTeamTurn = () => {
+  room = {...room,
+    teamTurn: room.teamTurn === 'red' ? 'blue' : 'red',
+    teamWordsClicked: []
+  }
+}
+
+const openCard = (buttonIndex) => {
   if(wordChosen !== null) {
     arrayToMaster[buttonIndex].isClicked = true;
     arrayToPlay[buttonIndex] = arrayToMaster[buttonIndex];
     if(arrayToMaster[buttonIndex].team === room.teamTurn){
+      room.teamWordsClicked = [];
       room[`${arrayToMaster[buttonIndex].team}WordsLeft`]--;
       globaleTime.timeToAnswerLeft+=room.timeByCorrectAnswer;
     } else if(arrayToMaster[buttonIndex].team === 'black') {
       gameOver();
+      changeTeamTurn();
     } else {
       room[`${arrayToMaster[buttonIndex].team}WordsLeft`]--;
-      room = {...room,
-        teamTurn: room.teamTurn === 'red' ? 'blue' : 'red',
-        teamWordsClicked: []
-      }
+      changeTeamTurn();
       globaleTime = {...globaleTime,
         MasterTurn: true,
         MasterTime: true,
@@ -328,7 +331,6 @@ const openCard = (buttonIndex, date) => {
     if(!room.redWordsLeft || !room.blueWordsLeft || !room.greenWordsLeft) {
       gameOver();
     }
-    io.emit('room', room);
     if(room[`${arrayToMaster[buttonIndex].team}WordsLeft`] === 0) {
       room = {...room,
         gameStarted: false,
@@ -339,6 +341,7 @@ const openCard = (buttonIndex, date) => {
     Object.keys(users).map(
       user => io.to(user).emit('words', (users[user])['isMaster'] ? arrayToMaster : arrayToPlay)
     )
+    io.emit('room', room);
   }
 }
 
@@ -379,8 +382,7 @@ const clickButton = (client, buttonIndex) => {
       io.emit('wordChosen', wordChosen);
       if(wordChosen !== null){
         clearTimeout(timeoutID);
-        time = new Date().getTime();
-        timeoutID = setTimeout(()=>openCard(buttonIndex,time), 1000);
+        timeoutID = setTimeout(()=>openCard(buttonIndex), 1000);
         } else {
           clearTimeout(timeoutID)
           io.emit('room', room);
