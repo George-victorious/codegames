@@ -383,10 +383,10 @@ const clickButton = (client, buttonIndex) => {
       if(wordChosen !== null){
         clearTimeout(timeoutID);
         timeoutID = setTimeout(()=>openCard(buttonIndex), 1000);
-        } else {
-          clearTimeout(timeoutID)
-          io.emit('room', room);
-        }
+      } else {
+        clearTimeout(timeoutID);
+      }
+      io.emit('room', room);
     } else {
       io.emit('buttonClicked', buttonIndex,client.id);
     }
