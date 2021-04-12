@@ -1,9 +1,8 @@
-require('dotenv').config();
 const express = require('express');
 const app = express();
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
-const port = process.env.PORT;
+const port = process.env.PORT || 5000;
 const server = require('http').createServer(app)
 const io = require('socket.io')(server,{
   transports: ['websocket']
@@ -53,8 +52,9 @@ let room = {
 let timeoutID;
 let wordChosen = null;
 let globaleTime = {timeToThinkLeft: 60, timeToAnswerLeft: 60, MasterTime: true, MasterTurn: true}
-let arrayToPlay = []
-let arrayToMaster = []
+let arrayToPlay = [];
+let arrayToMaster = [];
+let time;
 
 const wordShema = new Schema({
   ru:{
@@ -301,7 +301,9 @@ const changeSettings = (client,prop, value) => {
   }
 }
 
-const openCard = (buttonIndex) => {
+const openCard = (buttonIndex, date) => {
+  const newdste = new Date().getTime()
+  console.log(newdste - date)
   if(wordChosen !== null) {
     arrayToMaster[buttonIndex].isClicked = true;
     arrayToPlay[buttonIndex] = arrayToMaster[buttonIndex];
@@ -377,7 +379,8 @@ const clickButton = (client, buttonIndex) => {
       io.emit('wordChosen', wordChosen);
       if(wordChosen !== null){
         clearTimeout(timeoutID);
-        timeoutID = setTimeout(()=>openCard(buttonIndex), 1000);
+        time = new Date().getTime();
+        timeoutID = setTimeout(()=>openCard(buttonIndex,time), 1000);
         } else {
           clearTimeout(timeoutID)
           io.emit('room', room);
