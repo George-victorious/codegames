@@ -1,4 +1,5 @@
 const express = require('express');
+const bodyParser = require('body-parser');
 const app = express();
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
@@ -8,14 +9,17 @@ const io = require('socket.io')(server,{
   transports: ['websocket']
 });
 const uri = `mongodb+srv://admin:admin@cluster0.ugdpn.mongodb.net/codnames?retryWrites=true&w=majority`
-mongoose.connect(uri,{useNewUrlParser: true, useUnifiedTopology: true, useFindAndModify: false})
+mongoose.connect(uri,{useNewUrlParser: true, useUnifiedTopology: true, useCreateIndex: true, useFindAndModify: false})
   .then( () => {
       console.log('Connected to database')
   })
   .catch( (err) => {
       console.error(`Error connecting to the database. \n${err}`);
   })
-  
+
+app.use(bodyParser.urlencoded({ extended: false }))
+app.use(bodyParser.json())
+
 server.listen(port, ()=>{console.log(`listening on port ${port}`)});
 
 let users = {}
@@ -64,11 +68,97 @@ const wordShema = new Schema({
   en:{
     type: String,
     required: true,
-    unique: true
+    unique: false
   },
   custom:{
       type: Boolean,
-      required: true
+      required: true,
+      default: false
+  },
+  geografy:{
+      type: Boolean,
+      required: true,
+      default: false
+  },
+  animal:{
+      type: Boolean,
+      required: true,
+      default: false
+  },
+  alot:{
+      type: Boolean,
+      required: true,
+      default: false
+  },
+  life:{
+      type: Boolean,
+      required: true,
+      default: false
+  },
+  story:{
+      type: Boolean,
+      required: true,
+      default: false
+  },
+  food:{
+      type: Boolean,
+      required: true,
+      default: false
+  },
+  technics:{
+      type: Boolean,
+      required: true,
+      default: false
+  },
+  army:{
+      type: Boolean,
+      required: true,
+      default: false
+  },
+  man:{
+      type: Boolean,
+      required: true,
+      default: false
+  },
+  new:{
+      type: Boolean,
+      required: true,
+      default: false
+  },
+  sport:{
+      type: Boolean,
+      required: true,
+      default: false
+  },
+  art:{
+      type: Boolean,
+      required: true,
+      default: false
+  },
+  nature:{
+      type: Boolean,
+      required: true,
+      default: false
+  },
+  medecine:{
+      type: Boolean,
+      required: true,
+      default: false
+  },
+  games:{
+      type: Boolean,
+      required: true,
+      default: false
+  },
+  space:{
+      type: Boolean,
+      required: true,
+      default: false
+  },
+  close:{
+      type: Boolean,
+      required: true,
+      default: false
   }
 });
 
@@ -94,25 +184,61 @@ const timer = () => {
   }, 1000)
 }
 
-app.get('/getPort', async (req, res) => {
-  res.status(200).json({ port: process.env.PORT })
-})
-
 app.post('/addWord', async (req, res) => {
   const currentScema = mongoose.model('words',wordShema);
   const Wordbd = await currentScema.findOne({
-      ru: req.body.word.ru
+    $or:[
+      {ru: req.body.word.ru},
+      {en: req.body.word.en}
+    ]
   });
   try {
     if (!Wordbd) {
-      const newWord = new currentScema(word);
+      const newWord = new currentScema(req.body.word);
       await newWord.save();
-      res.status(201).json({ msg: 'Слово успешо добавлено.' })
+      res.status(201).json({ msg: 'Слово успешо добавлено.' });
     } else {
-      res.status(200).json({ msg: 'Слово уже существует.' })
+      res.status(200).json({ msg: 'Слово уже существует.' });
     }
   } catch (err) {
-    res.status(200).json({ msg: 'Ошибка!', error: err })
+    res.status(200).json({ msg: 'Ошибка!', error: err });
+  }
+})
+
+app.post('/addWords', async (req, res) => {
+  const words = req.body.words;
+  const ruArray = [];
+  const enArray = [];
+  const resultArray = [];
+  words.map(word => {
+    ruArray.push(word.ru); 
+    enArray.push(word.en);
+  });
+  const currentScema = mongoose.model('words',wordShema);
+  const Wordsbd = await currentScema.find({
+    $or : [
+      {ru: {$in : ruArray}},
+      {en: {$in : enArray}}
+    ]
+  });
+  Wordsbd.map(worddb => {
+    const myIndex = words.findIndex(n => n.ru === worddb.ru || n.en === worddb.en);
+    words.splice(myIndex, 1);
+    resultArray.push({ru: worddb.ru, en: worddb.en});
+  });
+  try {
+    if(words.length) {
+      await currentScema.insertMany(words);
+    }
+    console.log(Wordsbd)
+    if (!Wordsbd.length) {
+      res.status(201).json({ msg: 'Все слова бобавлены.' });
+    } else {
+      res.status(200).json({ msg: 'Не все слова бобавлены.', result: resultArray });
+    }
+  } catch (err) {
+    console.log(err)
+    res.status(200).json({ msg: 'Error!' });
   }
 })
 
