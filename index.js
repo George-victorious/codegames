@@ -301,9 +301,9 @@ const setUsername = (client, username) => {
   }
   io.emit('room', room);
   if(room.gotWords) {
-    io.to(client.id).emit('words', (users[client.id])['isMaster'] ? arrayToMaster : arrayToPlay)
+    io.to(client.id).emit('words', (users[client.id])['isMaster'] ? arrayToMaster : arrayToPlay);
   }
-  io.to(client.id).emit('getId', client.id)
+  io.to(client.id).emit('getId', client.id);
 }
 
 const startGame = (client) => {
@@ -421,7 +421,11 @@ const changeSettings = (client,prop, value) => {
       }
     } else {
       room[prop] = value;
-      io.emit('room', room);
+      if(prop === 'size') {
+        newWords(client);
+      } else {
+        io.emit('room', room);
+      }
     }
   }
 }
