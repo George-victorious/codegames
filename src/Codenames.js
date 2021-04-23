@@ -44,12 +44,11 @@ const Home = () => {
   }
 
   const handleClickButton = index => {
-    const date = new Date()
-    socket.emit('clickButton', index, date.getTime() - date.getTimezoneOffset() * 60000)
+    socket.emit('clickButton', index)
   }
 
   useEffect(() => {
-    socket = io('https://codenamesserver.herokuapp.com/', {
+    socket = io('http://localhost:5000', {
       transports: ['websocket']
     })
     socket.on('connect', () => {

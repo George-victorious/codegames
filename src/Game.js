@@ -56,6 +56,7 @@ const GameDivWrap = styled.div`
   margin: 10px;
   display: flex;
   justify-content: center;
+  overflow: hidden;
 
 `
 
